@@ -1,6 +1,17 @@
-[![Review Assignment Due Date](https://classroom.github.com/assets/deadline-readme-button-22041afd0340ce965d47ae6ef1cefeee28c7c493a6346c4f15d667ab976d596c.svg)](https://classroom.github.com/a/Ej4U3Ftp)
-# Εργασία #1
+# Soundwave
 
-Για να προετοιμάσεις την υποβολή σου, διάβασε την εκφώνηση της εργασίας [εδώ](https://progintro.github.io/assets/pdf/hw1.pdf).
+**A simple WAV audio utility** able to:
+1. Show the file properties of a WAF file.
+2. Change it's rate.
+3. Get only the data from a single channel.
+4. Change the volume.
+5. Generate a WAV file with a unique sound based on the parameters you provide.
+6. Play a WAV file.
 
-Αυτό το αρχείο (και το repository) μπορείς να το επεξεργαστείς / αλλάξεις όσο επιθυμείς με την υποβολή σου, όπως επίσης και να φτιάξεις υποφακέλους όπου απαιτείται.
+## Usage
+
+Use `./soundwave --help` to see the help menu.
+
+## Compatability
+
+The program is only available for Linux.
