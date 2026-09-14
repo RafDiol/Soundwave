@@ -6,7 +6,8 @@
 3. Get only the data from a single channel.
 4. Change the volume.
 5. Generate a WAV file with a unique sound based on the parameters you provide.
-6. Play a WAV file.
+6. Reverse the audio of a WAV file
+7. Play a WAV file.
 
 ## Usage
 
