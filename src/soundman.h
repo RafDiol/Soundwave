@@ -1021,12 +1021,21 @@ void reverse(short* flag){
     char* audio_data = read_DataSegment(data_segment_size, flag);
 
     // reverse audio data
-    char tmp;
-    for(uint32_t i = 0; i < data_segment_size / 2; i++){
-        tmp = audio_data[i];
-        audio_data[i] = audio_data[data_segment_size-i-1];
-        audio_data[data_segment_size-i-1] = tmp;
+    uint32_t chunk_size = (mono_stereo * bits_per_sample) / 8;
+    uint32_t num_frames = data_segment_size / chunk_size;
+    char *tmp = malloc(chunk_size);
+
+    for (uint32_t i = 0; i < num_frames / 2; i++) {
+        uint32_t left = i * chunk_size;
+        uint32_t right = (num_frames - 1 - i) * chunk_size;
+
+        for (uint32_t j = 0; j < chunk_size; j++) {
+            tmp[j] = audio_data[left + j];
+            audio_data[left + j] = audio_data[right + j];
+            audio_data[right + j] = tmp[j];
+        }
     }
+    free(tmp);
 
     char* other_data_buffer = get_OtherData(SizeOfFile, data_segment_size);
 
