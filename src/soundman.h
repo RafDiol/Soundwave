@@ -1024,8 +1024,8 @@ void reverse(short* flag){
     char tmp;
     for(uint32_t i = 0; i < data_segment_size / 2; i++){
         tmp = audio_data[i];
-        audio_data[i] = audio_data[data_segment_size-i];
-        audio_data[data_segment_size-i] = tmp;
+        audio_data[i] = audio_data[data_segment_size-i-1];
+        audio_data[data_segment_size-i-1] = tmp;
     }
 
     char* other_data_buffer = get_OtherData(SizeOfFile, data_segment_size);
