@@ -2,8 +2,8 @@
  * @file soundwave.c
  * @author Rafael Dioaltzis
  * @brief The main core code of soundwave
- * @version 0.1
- * @date 2025-12-01
+ * @version 0.2
+ * @date 2026-09-14
  * 
  * @copyright Copyright (c) 2025
  * 
@@ -24,6 +24,8 @@ void print_help_message(){
     printf("  %-30s%-60s\n", "rate <value>", "changes the rate of the wav file");
     printf("  %-30s%-60s\n", "channel <left|right>", "keeps the data from one channel if wav is stereo");
     printf("  %-30s%-60s\n", "volume <value>", "changes the volume of the wav data");
+    printf("  %-30s%-60s\n", "reverse", "reverse the audio of a WAV file");
+    printf("  %-30s%-60s\n", "dj", "play the specified WAV file");
     printf("  %-30s%-60s\n", "generate [options]", "Generate a WAV file with the specified options\n");
 
     printf("Generate command options:\n");
@@ -77,6 +79,9 @@ void parse_args(int argc, char* argv[], short* flag){
     else if(strcmp(argv[1], "dj") == 0){
         *flag = 6;
     }
+    else if(strcmp(argv[1], "reverse") == 0){
+        *flag = 7;
+    }
 }
 
 int main(int argc, char* argv[]){
@@ -88,6 +93,7 @@ int main(int argc, char* argv[]){
         4 = volume
         5 = generate
         6 = dj
+        7 = reverse
     */
     short args_flag = 0;
     short flag = 0; 
@@ -189,6 +195,9 @@ int main(int argc, char* argv[]){
     }
     else if(args_flag == 6){
         flag = play_sound() == 0 ? 0u : 1u;
+    }
+    else if(args_flag == 7){
+        reverse(&flag);
     }
 
     if(flag == 1){

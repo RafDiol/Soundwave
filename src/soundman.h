@@ -913,3 +913,145 @@ int play_sound(){
     free(FMT);
     return 0;
 }
+
+void reverse(short* flag){
+    *flag = 0;
+    char* RIFF = get_RIFF();
+    if(RIFF == NULL || memcmp(RIFF, "RIFF", 4) != 0){
+        fprintf(stderr, "Error! \"RIFF\" not found\n");
+        free(RIFF);
+        *flag = 1;
+        return;
+    }
+
+    uint32_t SizeOfFile = get_SizeOfFile();
+
+    char* WAVE = get_WAVE();
+    if(WAVE == NULL || memcmp(WAVE, "WAVE", 4) != 0){
+        fprintf(stderr, "Error! \"WAVE\" not found\n");
+        free(RIFF);
+        free(WAVE);
+        *flag = 1;
+        return;
+    }
+
+    char* FMT = get_FMT();
+    if(FMT == NULL || memcmp(FMT, "fmt ", 4) != 0){
+        fprintf(stderr, "Error! \"fmt \" not found\n");
+        free(RIFF);
+        free(WAVE);
+        free(FMT);
+        *flag = 1;
+        return;
+    }
+
+    uint32_t format_chunk = get_FormatChunk();
+    if(format_chunk != 16){
+        fprintf(stderr, "Error! size of format chunk should be 16\n");
+        free(RIFF);
+        free(WAVE);
+        free(FMT);
+        *flag = 1;
+        return;
+    }
+
+    uint16_t wave_format = get_WaveFormat();
+    if(wave_format != 1){
+        fprintf(stderr, "Error! WAVE type format should be 1\n");
+        free(RIFF);
+        free(WAVE);
+        free(FMT);
+        *flag = 1;
+        return;
+    }
+
+    uint16_t mono_stereo = get_MonoStereo();
+    if(mono_stereo != 1 && mono_stereo != 2){
+        fprintf(stderr, "Error! mono/stereo should be 1 or 2\n");
+        free(RIFF);
+        free(WAVE);
+        free(FMT);
+        *flag = 1;
+        return;
+    }
+    
+    uint32_t sample_rate = get_SampleRate();
+
+    uint32_t bytes_per_sec = get_BytePerSec();
+
+    uint16_t block_align = get_BlockAlign();
+    if(bytes_per_sec != sample_rate * block_align){
+        fprintf(stderr, "Error! bytes/second should be sample rate x block alignment\n");
+        free(RIFF);
+        free(WAVE);
+        free(FMT);
+        *flag = 1;
+        return;
+    }
+
+    uint16_t bits_per_sample = get_BitsPerSample();
+    if(bits_per_sample != 8 && bits_per_sample != 16){
+        fprintf(stderr, "Error! bits/sample should be 8 or 16\n");
+        free(RIFF);
+        free(WAVE);
+        free(FMT);
+        *flag = 1;
+        return;
+    }
+    if(block_align != (bits_per_sample / 8) * mono_stereo){
+        fprintf(stderr, "Error! block alignment should be bits per sample / 8 x mono/stereo\n");
+        free(RIFF);
+        free(WAVE);
+        free(FMT);
+        *flag = 1;
+        return;
+    }
+
+    char* data_start_segment = get_DataSegmentStart();
+    if(data_start_segment == NULL || memcmp(data_start_segment, "data", 4) != 0){
+        fprintf(stderr, "Error! \"data\" not found\n");
+        free(RIFF);
+        free(WAVE);
+        free(FMT);
+        free(data_start_segment);
+        *flag = 1;
+        return;
+    }
+    uint32_t data_segment_size = get_DataSegmentSize();
+    char* audio_data = read_DataSegment(data_segment_size, flag);
+
+    // reverse audio data
+    char tmp;
+    for(uint32_t i = 0; i < data_segment_size / 2; i++){
+        tmp = audio_data[i];
+        audio_data[i] = audio_data[data_segment_size-i];
+        audio_data[data_segment_size-i] = tmp;
+    }
+
+    char* other_data_buffer = get_OtherData(SizeOfFile, data_segment_size);
+
+    if(*flag == 0){
+        swrite_ch(RIFF, 4);
+        write_u32(SizeOfFile);
+        swrite_ch(WAVE, 4);
+        swrite_ch(FMT, 4);
+        write_u32(format_chunk);
+        write_u16(wave_format);
+        write_u16(mono_stereo);
+        write_u32(sample_rate);
+        write_u32(bytes_per_sec);
+        write_u16(block_align);
+        write_d16(bits_per_sample);
+        swrite_ch(data_start_segment, 4);
+        write_u32(data_segment_size);
+        swrite_ch(audio_data, data_segment_size);
+        swrite_ch(other_data_buffer, SizeOfFile -(SIZE_OF_WAVE_HEADER + data_segment_size));
+    }
+
+    free(RIFF);
+    free(WAVE);
+    free(FMT);
+    free(data_start_segment);
+    free(other_data_buffer);
+    free(audio_data);
+}
