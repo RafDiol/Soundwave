@@ -914,6 +914,11 @@ int play_sound(){
     return 0;
 }
 
+/**
+* @brief Reverses the audio content of a WAV file provided from standard input
+*
+* @param flag Upon successfull completion the value is set to 0. Otherwise a non-zero value is stored
+*/
 void reverse(short* flag){
     *flag = 0;
     char* RIFF = get_RIFF();
